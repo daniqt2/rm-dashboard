@@ -1,23 +1,19 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { ref } from "vue";
-import teamService from "@/api/team.service";
 import { ETeamKeys, ITeam } from "@/interfaces/teams.interface";
-import { parseTeamData, ITeamCountData } from "./utils";
+import { parseTeamData } from "./utils";
+import { useTeamStore } from "../../store/team.store";
+import { computed } from "vue";
 
-const teamList = ref<ITeamCountData[]>([]);
+const store = useTeamStore();
 
-// TODO - ADD PINIA FOR STATE MANAGEMENT
-const getUsersData = async () => {
-  teamService.getTeams().then((res) => {
-    if (res) {
-      const parsedRes = parseTeamData(res);
-      teamList.value.push(...parsedRes);
-    }
-  });
+const getTeams = async () => {
+  if (!store.teamList.length) store.geTeams();
 };
 
-onMounted(() => getUsersData());
+const parsedList = computed(() => parseTeamData(store.teamList));
+
+onMounted(() => getTeams());
 
 const labels = ["Team Name", "members"];
 const colKeys = [ETeamKeys.NAME, ETeamKeys.USER_COUNT]; // map users to a count
@@ -25,7 +21,7 @@ const colKeys = [ETeamKeys.NAME, ETeamKeys.USER_COUNT]; // map users to a count
 
 <template>
   <div></div>
-  <div class="p-4" v-if="teamList.length">
+  <div class="p-4" v-if="parsedList.length">
     <v-table>
       <thead>
         <tr>
@@ -33,7 +29,7 @@ const colKeys = [ETeamKeys.NAME, ETeamKeys.USER_COUNT]; // map users to a count
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(item, idx) in teamList" :key="`item-${idx}`">
+        <tr v-for="(item, idx) in parsedList" :key="`item-${idx}`">
           <td v-for="k in colKeys">{{ item[k as keyof ITeam] || "-" }}</td>
         </tr>
       </tbody>

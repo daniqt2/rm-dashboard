@@ -1,27 +1,18 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { ref } from "vue";
-import demoService from "@/api/demoData.service";
-import integrationService from "@/api/integration.service";
 import {
   IIntegration,
   EIntegrationKeys,
 } from "@/interfaces/integrations.interface";
+import { useIntegrationStore } from "../../store/integration.store";
 
-const userList = ref<IIntegration[]>([]);
+const store = useIntegrationStore();
 
-// TODO - ADD PINIA FOR STATE MANAGEMENT
-const getUsersData = async () => {
-  integrationService.getIntegrations().then((res) => {
-    console.log(res);
-    if (res) userList.value.push(...res);
-  });
-};
-const generateDemoData = async () => {
-  demoService.generateDemoData().then(() => getUsersData());
+const getIntegrations = async () => {
+  if (!store.integrationList.length) store.getIntegrations();
 };
 
-onMounted(() => getUsersData());
+onMounted(() => getIntegrations());
 
 const labels = ["Name", "Status", "Token", "User ID"];
 const colKeys = [
@@ -33,7 +24,7 @@ const colKeys = [
 </script>
 
 <template>
-  <div class="p-4" v-if="userList.length">
+  <div class="p-4" v-if="store.integrationList.length">
     <v-table>
       <thead>
         <tr>
@@ -41,7 +32,7 @@ const colKeys = [
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(item, idx) in userList" :key="`item-${idx}`">
+        <tr v-for="(item, idx) in store.integrationList" :key="`item-${idx}`">
           <td v-for="k in colKeys">{{ item[k as keyof IIntegration] }}</td>
         </tr>
       </tbody>
@@ -49,11 +40,5 @@ const colKeys = [
   </div>
   <div v-else>
     <p>NO USERS CREATED</p>
-    <button
-      class="bg-rm-primary p-4 rounded-lg mt-4 cursor-pointer"
-      :onclick="generateDemoData"
-    >
-      Click to generate DEMO DATA
-    </button>
   </div>
 </template>

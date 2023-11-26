@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { IUser, EUserKeys } from "@/interfaces/user.interface";
-import { ref } from "vue";
-import userService from "@/api/user.service";
 import demoService from "@/api/demoData.service";
+import { useUserStore } from "../../store/user.store";
 
-const userList = ref<IUser[]>([]);
+const store = useUserStore();
 
 const getUsersData = async () => {
-  userService.getUsers().then((res) => userList.value.push(...res));
+  if (!store.userList.length) store.getUsers();
 };
 const generateDemoData = async () => {
   demoService.generateDemoData().then(() => getUsersData());
@@ -26,7 +25,7 @@ const colKeys = [
 </script>
 
 <template>
-  <div class="p-4" v-if="userList.length">
+  <div class="p-4" v-if="store.userList.length">
     <v-table>
       <thead>
         <tr>
@@ -34,7 +33,7 @@ const colKeys = [
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(item, idx) in userList" :key="`item-${idx}`">
+        <tr v-for="(item, idx) in store.userList" :key="`item-${idx}`">
           <td v-for="k in colKeys">{{ item[k as keyof IUser] }}</td>
         </tr>
       </tbody>
