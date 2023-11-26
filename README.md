@@ -1,5 +1,11 @@
 # Vue 3 + TypeScript + Vite
 
-### RUN PROYECT
+## Project Setup
 
-- `yarn dev`
+```bash
+yarn install // install dependencies
+```
+
+```bash
+yarn dev // run in dev mode
+```
